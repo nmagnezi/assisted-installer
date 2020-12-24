@@ -16,6 +16,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+const waitForClusterVersion = false
+
 var Options struct {
 	ControllerConfig assistedinstallercontroller.ControllerConfig
 }
@@ -64,7 +66,7 @@ func main() {
 	ctxApprove, cancelApprove := context.WithCancel(context.Background())
 	go assistedController.ApproveCsrs(ctxApprove, &wg)
 	wg.Add(1)
-	go assistedController.PostInstallConfigs(&wg, &status)
+	go assistedController.PostInstallConfigs(&wg, &status, waitForClusterVersion)
 	wg.Add(1)
 	go assistedController.UpdateBMHs(&wg)
 	wg.Add(1)

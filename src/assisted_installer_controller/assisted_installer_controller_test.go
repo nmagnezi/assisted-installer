@@ -387,7 +387,7 @@ var _ = Describe("installer HostRoleMaster role", func() {
 			mockbmclient.EXPECT().UpdateClusterInstallProgress(gomock.Any(), gomock.Any(), gomock.Any()).MinTimes(1)
 
 			wg.Add(1)
-			go c.PostInstallConfigs(&wg, status)
+			go c.PostInstallConfigs(&wg, status, true)
 			wg.Wait()
 
 			Expect(status.HasError()).Should(Equal(false))
@@ -405,7 +405,7 @@ var _ = Describe("installer HostRoleMaster role", func() {
 				"version to be available").Return(nil).Times(1)
 
 			wg.Add(1)
-			go c.PostInstallConfigs(&wg, status)
+			go c.PostInstallConfigs(&wg, status, true)
 			wg.Wait()
 			Expect(status.HasError()).Should(Equal(true))
 		})

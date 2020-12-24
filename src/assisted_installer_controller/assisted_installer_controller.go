@@ -205,7 +205,7 @@ func isCsrApproved(csr *certificatesv1beta1.CertificateSigningRequest) bool {
 	return false
 }
 
-func (c controller) PostInstallConfigs(wg *sync.WaitGroup, status *ControllerStatus) {
+func (c controller) PostInstallConfigs(wg *sync.WaitGroup, status *ControllerStatus, waitForClusterVersion bool) {
 	defer wg.Done()
 	for {
 		time.Sleep(GeneralWaitInterval)
@@ -223,7 +223,7 @@ func (c controller) PostInstallConfigs(wg *sync.WaitGroup, status *ControllerSta
 	}
 
 	errMessage := ""
-	err := c.postInstallConfigs()
+	err := c.postInstallConfigs(waitForClusterVersion)
 	if err != nil {
 		errMessage = err.Error()
 		status.Error()
@@ -232,11 +232,14 @@ func (c controller) PostInstallConfigs(wg *sync.WaitGroup, status *ControllerSta
 	c.sendCompleteInstallation(success, errMessage)
 }
 
-func (c controller) postInstallConfigs() error {
+func (c controller) postInstallConfigs(waitForClusterVersion bool) error {
+	var err error
 
-	err := c.waitForClusterVersion()
-	if err != nil {
-		return err
+	if waitForClusterVersion {
+		err = c.waitForClusterVersion()
+		if err != nil {
+			return err
+		}
 	}
 
 	err = utils.WaitForPredicate(WaitTimeout, GeneralWaitInterval, c.addRouterCAToClusterCA)
